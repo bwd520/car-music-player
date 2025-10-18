@@ -1,0 +1,105 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Install Cordova
+      run: npm install -g cordova@latest
+      
+    - name: Create Cordova project
+      run: |
+        cordova create cordova-app com.carmusic.player "车机音乐"
+        
+    - name: Copy project files
+      run: |
+        # 复制HTML文件
+        find . -maxdepth 1 -name "*.html" -exec cp {} cordova-app/www/ \;
+        # 复制JS文件
+        find . -maxdepth 1 -name "*.js" -exec cp {} cordova-app/www/ \;
+        # 复制CSS文件
+        find . -maxdepth 1 -name "*.css" -exec cp {} cordova-app/www/ \;
+        # 复制assets目录
+        if [ -d "assets" ]; then cp -r assets cordova-app/www/; fi
+        # 复制src目录
+        if [ -d "src" ]; then cp -r src cordova-app/www/; fi
+        # 复制配置文件
+        cp config.xml cordova-app/ || echo "config.xml not found, using default"
+        
+    - name: Create simple config if needed
+      run: |
+        cd cordova-app
+        if [ ! -f config.xml ]; then
+          cat > config.xml << 'EOF'
+        <?xml version='1.0' encoding='utf-8'?>
+        <widget id="com.carmusic.player" version="1.0.0" xmlns="http://www.w3.org/ns/widgets">
+            <name>车机音乐</name>
+            <description>专为车机设计的音乐播放器</description>
+            <content src="index.html" />
+            <access origin="*" />
+            <platform name="android">
+                <preference name="android-minSdkVersion" value="22" />
+                <preference name="android-targetSdkVersion" value="33" />
+            </platform>
+            <preference name="Orientation" value="landscape" />
+            <preference name="Fullscreen" value="true" />
+        </widget>
+        EOF
+        fi
+        
+    - name: Add Android platform
+      run: |
+        cd cordova-app
+        cordova platform add android@latest
+        
+    - name: Build Debug APK
+      run: |
+        cd cordova-app
+        cordova build android --debug
+        
+    - name: Build Release APK
+      run: |
+        cd cordova-app
+        cordova build android --release
+        
+    - name: List output files
+      run: |
+        cd cordova-app
+        find platforms/android/app/build/outputs/apk -name "*.apk" -ls
+        
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: car-music-debug-apk
+        path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: car-music-release-apk
+        path: cordova-app/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk

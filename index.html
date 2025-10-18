@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>车机音乐</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="app">
+        <!-- 加载界面 -->
+        <div id="loading" class="loading-screen">
+            <div class="loading-content">
+                <div class="loading-icon">🎵</div>
+                <h1>车机音乐</h1>
+                <p>正在加载音乐资源...</p>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div id="main-app" class="main-app hidden">
+            <!-- 车机模式指示器 -->
+            <div id="car-mode-indicator" class="car-mode-indicator hidden">
+                🚗 车机模式
+            </div>
+
+            <!-- 专辑封面 -->
+            <div class="album-cover-container">
+                <div id="album-cover" class="album-cover">
+                    <img id="album-image" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'><rect width='300' height='300' fill='%231db954'/><text x='150' y='150' font-family='Arial' font-size='20' fill='white' text-anchor='middle' dy='0.3em'>CD024</text></svg>" alt="专辑封面">
+                </div>
+            </div>
+
+            <!-- 歌曲信息 -->
+            <div class="song-info">
+                <h2 id="song-title">车载DJ串烧</h2>
+                <p id="song-artist">沈阳CD024</p>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-container">
+                <span id="current-time" class="time-text">00:00</span>
+                <div id="progress-bar" class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                    <div id="progress-handle" class="progress-handle"></div>
+                </div>
+                <span id="duration" class="time-text">00:00</span>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="controls">
+                <button id="prev-btn" class="control-btn">⏪</button>
+                <button id="play-btn" class="control-btn play-btn">▶️</button>
+                <button id="next-btn" class="control-btn">⏩</button>
+            </div>
+
+            <!-- 音量控制 -->
+            <div class="volume-control">
+                <span class="volume-icon">🔊</span>
+                <div id="volume-slider" class="volume-slider">
+                    <div id="volume-fill" class="volume-fill"></div>
+                </div>
+                <span id="volume-level" class="volume-level">80%</span>
+            </div>
+
+            <!-- 播放列表按钮 -->
+            <button id="playlist-toggle" class="playlist-toggle">
+                📋 显示播放列表
+            </button>
+        </div>
+
+        <!-- 播放列表模态框 -->
+        <div id="playlist-modal" class="modal-overlay hidden">
+            <div class="playlist-panel">
+                <div class="playlist-header">
+                    <h3>播放列表</h3>
+                    <button id="close-playlist" class="close-btn">×</button>
+                </div>
+                <div id="playlist-content" class="playlist-content">
+                    <!-- 播放列表项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="audio-player" preload="metadata"></audio>
+
+    <script src="app.js"></script>
+</body>
+</html>

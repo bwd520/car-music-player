@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成演示音频</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #1db954;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #1ed760;
+        }
+        .audio-item {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 车机音乐演示音频生成器</h1>
+        
+        <div class="info">
+            <strong>说明：</strong>这个工具会生成一些简单的音频文件用于演示车机音乐播放器。
+            生成的音频是使用Web Audio API创建的纯音调，仅用于测试播放功能。
+        </div>
+        
+        <button onclick="generateAllAudios()">生成所有演示音频</button>
+        <button onclick="testPlayback()">测试播放功能</button>
+        
+        <div id="audio-list"></div>
+        
+        <div class="info">
+            <strong>使用方法：</strong>
+            <ol>
+                <li>点击"生成所有演示音频"按钮</li>
+                <li>生成的音频会显示在下方</li>
+                <li>右键点击音频可以"另存为"保存到本地</li>
+                <li>将保存的音频文件放到music文件夹中</li>
+                <li>修改app.js中的音频路径指向本地文件</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // 音频上下文
+        let audioContext;
+        
+        // 初始化音频上下文
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        // 生成音频数据
+        function generateTone(frequency, duration, volume = 0.3) {
+            const ctx = initAudioContext();
+            const sampleRate = ctx.sampleRate;
+            const numSamples = sampleRate * duration;
+            const buffer = ctx.createBuffer(2, numSamples, sampleRate);
+            
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = buffer.getChannelData(channel);
+                for (let i = 0; i < numSamples; i++) {
+                    // 生成简单的正弦波音调
+                    const t = i / sampleRate;
+                    channelData[i] = Math.sin(2 * Math.PI * frequency * t) * volume * Math.exp(-t * 0.5);
+                }
+            }
+            
+            return buffer;
+        }
+        
+        // 将AudioBuffer转换为WAV格式的Blob
+        function audioBufferToWav(buffer) {
+            const length = buffer.length;
+            const numberOfChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const arrayBuffer = new ArrayBuffer(44 + length * numberOfChannels * 2);
+            const view = new DataView(arrayBuffer);
+            
+            // WAV文件头
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * numberOfChannels * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * numberOfChannels * 2, true);
+            
+            // 音频数据
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+        
+        // 生成单个音频
+        function generateAudio(name, frequency, duration) {
+            const buffer = generateTone(frequency, duration);
+            const blob = audioBufferToWav(buffer);
+            const url = URL.createObjectURL(blob);
+            
+            const audioItem = document.createElement('div');
+            audioItem.className = 'audio-item';
+            audioItem.innerHTML = `
+                <h3>${name}</h3>
+                <p>频率: ${frequency}Hz, 时长: ${duration}秒</p>
+                <audio controls>
+                    <source src="${url}" type="audio/wav">
+                    您的浏览器不支持音频播放。
+                </audio>
+                <br><br>
+                <a href="${url}" download="${name.replace(/\s+/g, '_')}.wav" style="background: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 3px;">下载 ${name}.wav</a>
+            `;
+            
+            document.getElementById('audio-list').appendChild(audioItem);
+        }
+        
+        // 生成所有演示音频
+        function generateAllAudios() {
+            document.getElementById('audio-list').innerHTML = '';
+            
+            const audioConfigs = [
+                { name: '车载DJ串烧', frequency: 440, duration: 5 },
+                { name: '夜场精选', frequency: 523, duration: 5 },
+                { name: '电音派对', frequency: 659, duration: 5 },
+                { name: '车载慢摇', frequency: 349, duration: 5 },
+                { name: 'DJ现场', frequency: 784, duration: 5 }
+            ];
+            
+            audioConfigs.forEach(config => {
+                generateAudio(config.name, config.frequency, config.duration);
+            });
+            
+            // 显示使用说明
+            const instructions = document.createElement('div');
+            instructions.className = 'info';
+            instructions.innerHTML = `
+                <strong>✅ 音频生成完成！</strong><br>
+                现在您可以：<br>
+                1. 点击每个音频的播放按钮测试<br>
+                2. 点击"下载"按钮保存音频文件<br>
+                3. 将下载的文件放到music文件夹中<br>
+                4. 修改app.js中的src路径指向本地文件
+            `;
+            document.getElementById('audio-list').appendChild(instructions);
+        }
+        
+        // 测试播放功能
+        function testPlayback() {
+            const ctx = initAudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+            
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 1);
+            
+            alert('播放测试音调（440Hz，1秒）');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.carmusic.player" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>车机音乐</name>
+    <description>专为车机设计的音乐播放器</description>
+    <author email="support@carmusic.com" href="https://carmusic.com">
+        CarMusic Team
+    </author>
+    <content src="index.html" />
+    
+    <!-- 权限配置 -->
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    
+    <!-- 平台配置 -->
+    <platform name="android">
+        <allow-intent href="market:*" />
+        
+        <!-- 应用图标 -->
+        <icon density="ldpi" src="assets/icon-36.png" />
+        <icon density="mdpi" src="assets/icon-48.png" />
+        <icon density="hdpi" src="assets/icon-72.png" />
+        <icon density="xhdpi" src="assets/icon-96.png" />
+        <icon density="xxhdpi" src="assets/icon-144.png" />
+        <icon density="xxxhdpi" src="assets/icon-192.png" />
+        
+        <!-- 启动画面 -->
+        <splash density="land-ldpi" src="assets/splash-320x200.png" />
+        <splash density="land-mdpi" src="assets/splash-480x320.png" />
+        <splash density="land-hdpi" src="assets/splash-800x480.png" />
+        <splash density="land-xhdpi" src="assets/splash-1280x720.png" />
+        
+        <!-- Android特定配置 -->
+        <preference name="android-minSdkVersion" value="21" />
+        <preference name="android-targetSdkVersion" value="33" />
+        <preference name="android-compileSdkVersion" value="33" />
+        
+        <!-- 车机相关配置 -->
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+        
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <!-- 网络权限 -->
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+            
+            <!-- 音频权限 -->
+            <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+            
+            <!-- 存储权限 -->
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            
+            <!-- 车机特性 -->
+            <uses-feature android:name="android.hardware.type.automotive" android:required="false" />
+            <uses-feature android:name="android.software.leanback" android:required="false" />
+        </config-file>
+        
+        <config-file target="AndroidManifest.xml" parent="/manifest/application/activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </config-file>
+    </platform>
+    
+    <!-- 全局首选项 -->
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="android-windowSoftInputMode" value="adjustResize" />
+    <preference name="Orientation" value="landscape" />
+    <preference name="Fullscreen" value="true" />
+    <preference name="KeepRunning" value="true" />
+    <preference name="LoadingDialog" value="车机音乐,正在启动..." />
+    <preference name="LoadingPageDialog" value="正在加载,请稍候..." />
+    <preference name="ErrorUrl" value="" />
+    <preference name="BackgroundColor" value="0xff1e1e1e" />
+    <preference name="HideKeyboardFormAccessoryBar" value="true" />
+    <preference name="SuppressesIncrementalRendering" value="false" />
+    
+    <!-- 插件 -->
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-plugin-statusbar" spec="2" />
+    <plugin name="cordova-plugin-device" spec="2" />
+    <plugin name="cordova-plugin-splashscreen" spec="5" />
+    <plugin name="cordova-plugin-media" spec="5" />
+    <plugin name="cordova-plugin-file" spec="6" />
+    <plugin name="cordova-plugin-network-information" spec="2" />
+    <plugin name="cordova-plugin-insomnia" spec="4" />
+</widget>

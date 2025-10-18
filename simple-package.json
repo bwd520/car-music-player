@@ -1,0 +1,13 @@
+{
+  "name": "car-music-player",
+  "version": "1.0.0",
+  "description": "车机版音乐播放器",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server . -p 3000",
+    "build": "echo 'Building for production...'",
+    "cordova-build": "cordova build android --release"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

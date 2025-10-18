@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "车机音乐",
+    "slug": "car-music-player",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.carmusic",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE",
+        "MODIFY_AUDIO_SETTINGS",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.intent.action.MAIN",
+          "category": ["android.intent.category.LAUNCHER", "android.intent.category.LEANBACK_LAUNCHER"]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
